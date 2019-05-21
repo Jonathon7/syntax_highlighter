@@ -1,118 +1,115 @@
-const js = import("./rust/pkg/syntax_highlighter");
 const axios = require("axios");
 
-js.then(js => {
-  const code = document.getElementById("code");
-  const input = document.getElementById("hidden-input");
+const code = document.getElementById("code");
+const input = document.getElementById("hidden-input");
 
-  let embed = document.getElementById("embed");
-  embed.onclick = upload;
+let embed = document.getElementById("embed");
+embed.onclick = upload;
 
-  input.value = "";
+input.value = "";
 
-  input.onkeydown = tab;
-  input.oninput = highlight;
+input.onkeydown = tab;
+input.oninput = highlight;
 
-  function highlight() {
-    const words = input.value.split(" ");
+function highlight() {
+  const words = input.value.split(" ");
 
-    code.innerHTML = input.value;
-    for (let i = 0; i < words.length; i++) {
-      let match = getRegexString(words[i]);
+  code.innerHTML = input.value;
+  for (let i = 0; i < words.length; i++) {
+    let match = getRegexString(words[i]);
 
-      if (js.detect(words[i]) || match.keyword) {
-        if (words[i] === "" || words[i] === " ") return;
+    if (match.keyword) {
+      if (words[i] === "" || words[i] === " ") return;
 
-        code.innerHTML = code.innerHTML.replace(
-          match.regex,
-          `<span style="color: ${color(words[i])}">${
-            match.partialHighlight ? match.substring : words[i]
-          }</span>`
-        );
-        console.log(match.substring === ";" && code.innerHTML);
-      }
+      code.innerHTML = code.innerHTML.replace(
+        match.regex,
+        `<span style="color: ${color(words[i])}">${
+          match.partialHighlight ? match.substring : words[i]
+        }</span>`
+      );
+      console.log(match.substring === ";" && code.innerHTML);
     }
+  }
+}
+
+/**
+ * @param {String} keyword - each word entered in the text area
+ * @returns {RegExp} - the regex that will find the word to be highlighted in the textarea
+ */
+function getRegexString(keyword) {
+  //true
+  if (keyword.indexOf("()") !== -1) {
+    return {
+      keyword: true,
+      partialHighlight: true,
+      substring: keyword.substring(0, keyword.indexOf("()")),
+      regex: new RegExp(`${keyword.substring(0, keyword.indexOf("()"))}`, "g")
+    };
   }
 
   /**
-   * @param {String} keyword - each word entered in the text area
-   * @returns {RegExp} - the regex that will find the word to be highlighted in the textarea
+   * @description - currently cancels out highlighting for function invocations
    */
-  function getRegexString(keyword) {
-    //true
-    if (keyword.indexOf("()") !== -1) {
-      return {
-        keyword: true,
-        partialHighlight: true,
-        substring: keyword.substring(0, keyword.indexOf("()")),
-        regex: new RegExp(`${keyword.substring(0, keyword.indexOf("()"))}`, "g")
-      };
-    }
+  if (keyword.indexOf(";") !== -1) {
+    return {
+      keyword: true,
+      partialHighlight: true,
+      substring: keyword.substring(keyword.indexOf(";"), keyword.length),
+      regex: new RegExp(`${keyword}`, "g")
+    };
+  }
 
-    /**
-     * @description - currently cancels out highlighting for function invocations
-     */
-    if (keyword.indexOf(";") !== -1) {
+  if (color(keyword) == "#f2f24c") {
+    return {
+      keyword: false,
+      partialHighlight: false,
+      regex: null
+    };
+  }
+
+  switch (keyword) {
+    case "=":
       return {
         keyword: true,
-        partialHighlight: true,
-        substring: keyword.substring(keyword.indexOf(";"), keyword.length),
+        partialHighlight: false,
+        regex: /=(?!")/g
+      };
+    case '"':
+      return {};
+    default:
+      return {
+        keyword: true,
+        partialHighlight: false,
         regex: new RegExp(`${keyword}`, "g")
       };
-    }
-
-    if (color(keyword) == "#f2f24c") {
-      return {
-        keyword: false,
-        partialHighlight: false,
-        regex: null
-      };
-    }
-
-    switch (keyword) {
-      case "=":
-        return {
-          keyword: true,
-          partialHighlight: false,
-          regex: /=(?!")/g
-        };
-      case '"':
-        return {};
-      default:
-        return {
-          keyword: true,
-          partialHighlight: false,
-          regex: new RegExp(`${keyword}`, "g")
-        };
-    }
   }
+}
 
-  /**
-   * @param {Object} e - onkeydown event
-   * @description - indents the cursor a couple of spaces in both the textarea and the div to emulate a tab indent
-   */
-  function tab(e) {
-    if (e.keyCode == 9 || e.which == 9) {
-      e.preventDefault();
-      this.value =
-        this.value.substring(0, this.selectionStart) +
-        "\t" +
-        this.value.substring(this.selectionEnd);
+/**
+ * @param {Object} e - onkeydown event
+ * @description - indents the cursor a couple of spaces in both the textarea and the div to emulate a tab indent
+ */
+function tab(e) {
+  if (e.keyCode == 9 || e.which == 9) {
+    e.preventDefault();
+    this.value =
+      this.value.substring(0, this.selectionStart) +
+      "\t" +
+      this.value.substring(this.selectionEnd);
 
-      code.innerHTML =
-        this.value.substring(0, this.selectionStart) +
-        "\t" +
-        this.value.substring(this.selectionEnd);
-    }
+    code.innerHTML =
+      this.value.substring(0, this.selectionStart) +
+      "\t" +
+      this.value.substring(this.selectionEnd);
   }
+}
 
-  function upload() {
-    axios.post("http://localhost:3003/api/upload", {
-      html: code.innerHTML,
-      text: input.value
-    });
-  }
-});
+function upload() {
+  axios.post("http://localhost:3003/api/upload", {
+    html: code.innerHTML,
+    text: input.value
+  });
+}
 
 /**
  * @param {String} keyword - the keyword that returns true from the detect function
