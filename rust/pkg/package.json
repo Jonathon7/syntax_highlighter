@@ -1,0 +1,15 @@
+{
+  "name": "syntax_highlighter",
+  "collaborators": [
+    "jonathon"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "syntax_highlighter_bg.wasm",
+    "syntax_highlighter.js",
+    "syntax_highlighter.d.ts"
+  ],
+  "module": "syntax_highlighter.js",
+  "types": "syntax_highlighter.d.ts",
+  "sideEffects": "false"
+}
