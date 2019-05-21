@@ -1,0 +1,62 @@
+#hidden-input,
+#code {
+  font-family: "Menlo";
+  padding: 20px;
+}
+
+#hidden-input {
+  width: calc(100vw - 20px);
+  min-height: calc(100vh - 20px);
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: 0;
+  color: #b6e6fe;
+  caret-color: #fff;
+  outline: none;
+  resize: none;
+  background: #1f1e1e;
+}
+
+#code {
+  background: #1f1e1e;
+  color: #b6e6fe;
+  border: none;
+  width: calc(100vw - 20px);
+  min-height: calc(100vh - 20px);
+  position: absolute;
+  opacity: 0.5;
+  left: 0;
+  right: 0;
+  margin: auto;
+  pointer-events: none;
+  cursor: auto;
+  display: inline-block;
+  text-indent: 0px;
+  text-shadow: none;
+  text-transform: none;
+  white-space: pre-wrap;
+  word-spacing: 0px;
+  word-wrap: break-word;
+  writing-mode: lr-tb;
+  margin: auto;
+}
+
+textarea {
+  border-style: none;
+}
+
+#embed {
+  position: fixed;
+  right: 100px;
+}
+
+iframe {
+  position: absolute;
+  z-index: 2;
+  bottom: 0;
+  width: 100vw;
+  height: 300px;
+  border: solid 1px white;
+}
