@@ -1,35 +1,8 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const merge = require("webpack-merge");
+const common = require("./webpack.common");
 
-module.exports = {
-  entry: "./index.js",
-  output: {
-    path: path.resolve(__dirname, "../dist"),
-    filename: "index.js"
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(js)$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: "babel-loader",
-            options: {
-              presets: ["@babel/preset-env"],
-              plugins: ["@babel/plugin-syntax-dynamic-import"]
-            }
-          }
-        ]
-      }
-    ]
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      inject: true,
-      template: path.resolve("./index.html")
-    })
-  ],
+module.exports = merge(common, {
+  mode: "development",
   devServer: {
     historyApiFallback: true,
     port: 8080,
@@ -38,6 +11,5 @@ module.exports = {
         target: "http://localhost:3003"
       }
     }
-  },
-  mode: "development"
-};
+  }
+});
